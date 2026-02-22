@@ -1,0 +1,10 @@
+# Latex-Engine Generated Files
+*.aux
+*.bbl
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.gz
+*.xdv
