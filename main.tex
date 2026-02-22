@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{fontspec}
+\usepackage[margin=1in]{geometry}
+
+\setmainfont{Times New Roman}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{cite}
+
+\title{Group 01 Lab 02}
+\author{Irtaza Hasan() $\And$ Yuchen Lin(21003143)}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Design Specification}
+
+Our team are going to design the controller with the following requirement.
+
+\begin{itemize}
+    \item Maximum overshoot of $\leq$ 7$\%$ for a unit step input
+    \item 1$\%$ settling time of $\leq$ 0.2s for a unit step input
+    \item Zero steady-state error for a unit step input
+\end{itemize}
+
+% Add citation
+From Lab 1, our group have come up with our system model. 
+
+\begin{equation}
+    \label{eq:transfer}
+    P_{avg} = \frac{12.082}{s^2+0.337s}
+\end{equation}
+
+According to eq~\ref{eq:transfer}, the transfer function is a $2^{nd}$-order transfer function.
+
+\section{First Attempt: P Controller}
+
+Consider our system Type I. % Add more description here
+Type I system $\implies$ \(e_{ss} = 0\) from Table 5-1. % Cite
+
+% Direct copy from lecture notes. Need clean up.
+\begin{equation}
+\boldsymbol{e_{ss}} = \pm \lim_{s \to 0} s\, R(s)\, I(s) \left[\frac{1}{1 + C(s)\,P(s)\,H(s)}\right]
+\end{equation}
+
+With:
+\begin{align}
+R(s) &= \text{Gain} \cdot \frac{1}{s} = (1) \cdot \frac{1}{s} = \frac{1}{s} \\[6pt]
+I(s) &= H(s) = 651.899 \\[6pt]
+C(s) &= K_P \\[6pt]
+P(s) &= \frac{12.082}{s^2 + 0.337s}
+\end{align}
+
+Which gives me:
+
+\begin{equation}
+\boldsymbol{e_{ss}} = \pm \lim_{s \to 0}\, s\left(\frac{1}{s}\right)(651.899) \left[\frac{1}{1 + K_P \left(\dfrac{12.082}{s^2 + 0.337s}\right)(651.899)}\right]
+\end{equation}
+
+And now simplified:
+
+\begin{equation}
+\boldsymbol{e_{ss}} = \pm \lim_{s \to 0}\,(651.899) \left[\frac{1}{1 + \left(\dfrac{K_P\,(12.082)(651.899)}{s^2 + 0.337s}\right)}\right]
+\end{equation}
+
+Taking the limit as $s$ approaches zero:
+
+\begin{equation}
+\boldsymbol{e_{ss}} = \pm(651.899) \left[\frac{1}{1 + \left(\dfrac{K_P\,(12.082)(651.899)}{(0)^2 + 0.337(0)}\right)}\right]
+\end{equation}
+
+And now simplified:
+
+\begin{equation}
+\boldsymbol{e_{ss}} = \pm(651.899)\left[\frac{1}{1 + \infty}\right] = 0
+\end{equation}
+
+However, this is the stage where I would like to apply the Steady-State Error specification I was given to the left side of my equation and calculate a value for $K_P$, but since both the left side and right side of my equation equal zero, I can safely conclude that for all values of $K_P$:
+
+\begin{equation}
+\boldsymbol{e_{ss}} = 0
+\end{equation}
+
+% Compute Rise Time
+Applying $2^{nd}$ order system transient response equation for step input(eq~5.9)
+
+\begin{equation}
+    \begin{split}
+        \omega_n &= \frac{1.8}{t_r}\\
+        
+    \end{split}
+\end{equation}
+
+
+\clearpage
+
+\bibliographystyle{ieeetr}  % or ieeetr, apa, etc.
+\bibliography{references}
+
+\end{document}
