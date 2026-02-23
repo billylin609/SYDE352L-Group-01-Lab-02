@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{fontspec}
 \usepackage[margin=1in]{geometry}
+\usepackage{amssymb}
 
 \setmainfont{Times New Roman}
 
@@ -11,7 +12,7 @@
 \usepackage{float}
 
 \title{Group 01 Lab 02}
-\author{Irtaza Hasan() $\And$ Yuchen Lin(21003143)}
+\author{Irtaza Hasan (21031484) $\And$ Yuchen Lin(21003143)}
 \date{February 2026}
 
 \begin{document}
@@ -20,10 +21,10 @@
 
 \section{Design Specification}
 
-Our team are going to design the controller with the following requirement.
+We are going to design the controller with the following requirements:
 
 \begin{itemize}
-    \item Maximum overshoot of $\leq$ 7$\%$ for a unit step inputb
+    \item Maximum overshoot of $\leq$ 7$\%$ for a unit step input
     \item 1$\%$ settling time of $\leq$ 0.2s for a unit step input
     \item Zero steady-state error for a unit step input
 \end{itemize}
@@ -38,7 +39,7 @@ From Lab 1, our group have come up with our system model.
 
 According to eq~\ref{eq:transfer}, the transfer function is a $2^{nd}$-order transfer function.
 
-\section{First Attempt: P Controller}
+\section{P Controller: $1^{st}$ attempt}
 
 Consider our system Type I. % Add more description here
 Type I system $\implies$ \(e_{ss} = 0\) from Table 5-1. % Cite
@@ -76,6 +77,9 @@ Taking the limit as $s$ approaches zero:
 
 And now simplified:
 
+
+\subsection{Calculate Steady State Error}
+
 \begin{equation}
 \boldsymbol{e_{ss}} = \pm(651.899)\left[\frac{1}{1 + \infty}\right] = 0
 \end{equation}
@@ -86,17 +90,20 @@ However, this is the stage where I would like to apply the Steady-State Error sp
 \boldsymbol{e_{ss}} = 0
 \end{equation}
 
-% Compute Rise Time
-Applying $2^{nd}$ order system transient response equation for step input to find the natural frequency(eq~5.9)
+\subsection{Calculate Coefficient Mapping}
+
+% Compute 1% Settling Time
+Applying $2^{nd}$ order system transient response equation for step input to find(eq~5.13)
 
 \begin{equation}
     \begin{split}
-        \omega_n &= \frac{1.8}{t_r}\\
-                 &= \frac{1.8}{0.2}\\
-                 &= 9 \frac{rad}{s}
+        \sigma &= \frac{4.6}{t_s}\\
+               &= \frac{4.6}{0.2}\\
+               &= 23 \frac{rad}{s}
     \end{split}
 \end{equation}
 
+% Compute Overshoot
 Find underdamping ratio of the given system, using equation 5-10.
 
 \begin{equation}
@@ -116,22 +123,14 @@ Simplify the eq~\ref{eq:underdamp_coeff}.
 
 Identify $2^{nd}$ order system coefficient mapping for P-Controller.
 
-% Rise Time
 \begin{equation}
     P(s) = \frac{K}{(s+\sigma_1)(s+\sigma_2)}
 \end{equation}
 
 Coefficient mapping: \(K=12.082 \And \sigma_1 = 0 \And \sigma_2 = 0.337\)
 
-\begin{equation}
-    \begin{split}
-        K_p &= \frac{\omega_n^2 - \omega_1\omega_2}{K \cdot H(s)} \\
-            &= \frac{9^2 - 0 \cdot 0.337}{12.082 \cdot 651.899} \\
-            &= 0.0103 \frac{V}{\text{Encoder Counts}}
-    \end{split}
-\end{equation}
-
 % Overshoot
+\textbf{Find $K_p$ using Overshoot Specification}
 \begin{equation}
     \begin{split}
         \omega_n &= \frac{\sigma_1 + \sigma_2}{2\zeta}\\
@@ -147,19 +146,182 @@ Coefficient mapping: \(K=12.082 \And \sigma_1 = 0 \And \sigma_2 = 0.337\)
     \end{split}
 \end{equation}
 
+\subsection{Use Superimposed solution method}
+
 % Note: the K_p value are the required for the different controller requirement
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{p_controller_system_locus_plot.png}
+    \includegraphics[width=1\linewidth]{figs/p_controller_system_locus_plot.png}
     \caption{System Locus Plot for the Designed P-Controller}
     \label{fig:sys_locus_p_controller}
 \end{figure}
 
 \textbf{There is no Superimposed Solution Region overlap with green or blue root loci.  There is no $K_p$ value satisfy the system requirement.}
 
-\clearpage
+\subsection{Simulate System Response}
 
-\bibliographystyle{ieeetr}  % or ieeetr, apa, etc.
-\bibliography{references}
+Simulation result:
 
-\end{document}b
+% No Steady State Error Simulation due to Type-I system nature
+
+\begin{equation}
+    \begin{split}
+        P(s) &= \frac{12.082}{s^2 + 0.337s}\\
+        I(s) &= H(s) = 651.899 \\
+        C(s) &= K_p = 0.000008649 \frac{V}{\text{Encoder Count}}
+    \end{split}
+\end{equation}
+
+Using Matlab, we obtain the close loop transfer function.
+
+\begin{equation}
+    \begin{split}
+        T_{cl} &= \frac{I(s) \cdot C(s) \cdot P(s)}{1 + H(s) \cdot C(s) \cdot P(s)} \\
+               &= \frac{0.06812}{s^2 + 0.337s + 0.06812}
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        Bandwidth &= 0.2833 \frac{rad}{s}\\
+                  &= 0.0451 Hz
+    \end{split}
+\end{equation}
+
+\subsubsection{Calculate Period}
+
+\begin{equation}
+    Period(s) = \frac{1}{Bandwidth(Hz)} = \frac{1}{0.0451} = 22.1729s
+\end{equation}
+
+Apply Rule of Thumb in Section 6.1.1:
+
+\begin{equation}
+    \text{close loop control period(ms)} = \frac{Period(s)}{100} = \frac{22.1729}{100} = 0.221729s
+\end{equation}
+
+Therefore \(T_s = 0.2s\) for $C(z)$ Block
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/p1_overshoot.png}
+    \caption{Overshoot Max value 1.0769; slightly above the specification.}
+    \label{fig:placeholder}
+\end{figure}
+
+\section{P Controller: \(2^{nd}\) Attempt}
+Aim: Determine the type of controller to jump to next
+
+\subsection{\(2^{nd}\) Order Coefficient Mapping}
+Is Steady State Error an issue?
+No. Both simulations confirm that the Steady State Error is 0
+
+Are the Transient Specifications an issue?
+Yes. We cannot meet both specifications for settling time ($T_s$) and overshoot ($M_p$) at the same time.
+
+\subsection{Superimposed Solution Region Method}
+Is Steady State Error an issue?
+No. The Type 1 system structure guarantees this for any $K_p$ > 0
+
+Are the Transient Specifications an issue?
+Yes. Since the Superimposed Region didn't come close to intersecting with the root locus, it looks like it isn't possible to meet both specifications simultaneously.
+
+Since the problem is with Transient specifications, we need to design a PD controller!
+
+\section{PD Controller: \(1^{st}\) Attempt}
+Add a PD controller: $C(s)$ = $K_p$ + $K_d$
+\subsection{Calculate Steady state error}
+Since we still have a Type I system, we have a steady-state error of 0 for a unit step input regardless of the $K_p$ or $K_d$ values used
+
+\subsection{Calculate Desired Poles}
+From equations 12, 14, and 15, we found that $\sigma$ = 23 rad/s, $\zeta$ = 0.646, and $\omega$ = 35.60 rad/s
+
+\subsection{Calculate Coefficient Mapping}
+\begin{equation}
+    s^2 + (\alpha_1 + \alpha_2 + K_d \cdot K \cdot H)s + (K_p \cdot K \cdot H) = 0
+\end{equation}
+
+can be mapped to
+
+\begin{equation}
+s^2 + 2\zeta\omega_ns+\omega_n^2
+\end{equation}
+
+Using our plant constants:
+K = 12.082
+$\alpha_1$ = 0
+$\alpha_2$ = 0.337
+H = 651.899
+
+\[
+    K \cdot H = 12.082 \times 651.899 = 7878.3
+\]
+
+\noindent\textbf{Calculate $K_P$} (mapping the $\omega_n^2$ term):
+
+\[
+    K_P = \frac{\omega_n^2}{K \cdot H} = \frac{35.60^2}{7878.3} = 0.161 \text{ V/encoder count}
+\]
+
+\noindent\textbf{Calculate $K_D$} (mapping the $2\zeta\omega_n$ term):
+
+\[
+    2\zeta\omega_n = \alpha_1 + \alpha_2 + K_D \cdot K \cdot H
+\]
+\[
+    46 = 0.337 + K_D(7878.3)
+\]
+\[
+    K_D = \frac{46 - 0.337}{7878.3} = 0.00580 \text{ V}\cdot\text{s/encoder count}
+\]
+
+\subsection{Simulate System Response}
+\subsubsection{Calculate Period}
+\subsubsection{Calculate Filter Coefficient}
+\subsubsection{Simulate}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Specification} & \textbf{Target} & \textbf{Simulated Result} & \textbf{Met?} \\
+\hline
+Overshoot             & $\leq 7\%$      & $> 7\%$                   & $\times$ \\
+1\% Settling Time     & $\leq 0.2$ s    & $\leq 0.2$ s              & $\checkmark$ \\
+Steady-State Error    & $0$             & $0$                       & $\checkmark$ \\
+\hline
+\end{tabular}
+\caption{Simulated performance for PD-Controller $1^{st}$ Attempt}
+\end{table}
+
+\section{PD Controller: $2^{nd}$ Attempt}
+\subsection{Trial and Error by Intuition}
+We must never use Trial and Error to change $K_p$ or $K_d$. Instead, we need to use Trial and Error by Intuition. This means changing $\sigma$ if there's an issue with settling time, $\zeta$ if there's an issue with the overshoot, and $\omega_n$ if there's an issue with the rise time.
+
+\subsection{Steady-State Error Calculation}
+Since I still have a Type I system, the steady-state error is still 0.
+
+\subsection{Calculate Desired Poles}
+
+\subsection{Calculate Coefficient Mapping}
+
+\subsection{Simulate System Response}
+\subsubsection{Calculate Period}
+\subsubsection{Calculate Filter Coefficient}
+\subsubsection{Simulate}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Specification} & \textbf{Target} & \textbf{Simulated Result} & \textbf{Met?} \\
+\hline
+Overshoot             & $\leq 7\%$      & $\leq 7\%$                   & $\checkmark$ \\
+1\% Settling Time     & $\leq 0.2$ s    & $\leq 0.2$ s              & $\checkmark$ \\
+Steady-State Error    & $0$             & $0$                       & $\checkmark$ \\
+\hline
+\end{tabular}
+\caption{Simulated performance for PD-Controller $2^{nd}$ Attempt}
+\end{table}
+
+\end{document}
