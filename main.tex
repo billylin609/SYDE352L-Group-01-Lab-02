@@ -86,14 +86,67 @@ However, this is the stage where I would like to apply the Steady-State Error sp
 \end{equation}
 
 % Compute Rise Time
-Applying $2^{nd}$ order system transient response equation for step input(eq~5.9)
+Applying $2^{nd}$ order system transient response equation for step input to find the natural frequency(eq~5.9)
 
 \begin{equation}
     \begin{split}
         \omega_n &= \frac{1.8}{t_r}\\
-        a
+                 &= \frac{1.8}{0.2}\\
+                 &= 9 \frac{rad}{s}
     \end{split}
 \end{equation}
+
+Find underdamping ratio of the given system, using equation 5-10.
+
+\begin{equation}
+    \label{eq:underdamp_coeff}
+    M_p = e^{-\frac{\pi \zeta}{\sqrt{1-\zeta^2}}}, 0\leq \zeta < 1
+\end{equation}
+
+Simplify the eq~\ref{eq:underdamp_coeff}.
+
+\begin{equation}
+    \begin{split}
+        \zeta &= \sqrt{\frac{[ln(M_p)]^2}{\pi ^2 + [ln(M_p)]^2}}\\
+              &= \sqrt{\frac{[ln(0.07)]^2}{\pi ^2 + [ln(0.07)]^2}}\\
+              &= 0.646
+    \end{split}
+\end{equation}
+
+Identify $2^{nd}$ order system coefficient mapping for P-Controller.
+
+% Rise Time
+\begin{equation}
+    P(s) = \frac{K}{(s+\sigma_1)(s+\sigma_2)}
+\end{equation}
+
+Coefficient mapping: \(K=12.082 \And \sigma_1 = 0 \And \sigma_2 = 0.337\)
+
+\begin{equation}
+    \begin{split}
+        K_p &= \frac{\omega_n^2 - \omega_1\omega_2}{K \cdot H(s)} \\
+            &= \frac{9^2 - 0 \cdot 0.337}{12.082 \cdot 651.899} \\
+            &= 0.0103 \frac{V}{\text{Encoder Counts}}
+    \end{split}
+\end{equation}
+
+% Overshoot
+\begin{equation}
+    \begin{split}
+        \omega_n &= \frac{\sigma_1 + \sigma_2}{2\zeta}\\
+                 &= \frac{0 + 0.337}{2 \cdot 0.646} \\
+                 &= 0.261 \frac{rad}{s}
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        K_p &= \frac{(0.261)^2 - (0)(0.337)}{12.082 \cdot 651.899}\\
+            &= 8.649 \times 10^{-6} \frac{V}{\text{Encoder Counts}}
+    \end{split}
+\end{equation}
+
+% Note: the K_p value are the required for the different controller requirement
 
 
 \clearpage
